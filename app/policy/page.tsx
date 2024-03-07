@@ -1,30 +1,109 @@
+"use client";
+
+import { CloseButton, Divider, Input, Table } from "@mantine/core";
+import { useDeferredValue, useEffect, useState } from "react";
+import { MoreHorizontal, Search } from "lucide-react";
+import { handlePolicyRequest } from "@/api/policy";
+
+interface PolicyItemProps {
+  policyNumber?: string;
+  policyStartDate?: string;
+  policyEndDate?: string;
+  productCode?: string;
+  policyHolder?: string;
+  premiumAmount?: number;
+}
+
 export default function PolicyPage() {
+  const [query, setQuery] = useState<string>("");
+  const [data, setData] = useState<any>();
+  const [loading, setLoading] = useState<boolean>(false);
+
+  const deferfedData = useDeferredValue(data);
+
+  useEffect(() => {
+    const abortController = new AbortController();
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await handlePolicyRequest.searchPolicy(query, {
+          signal: abortController.signal,
+        });
+
+        if (res?.status === 200) {
+          setData(res.data.policies);
+        }
+      } catch (error) {
+        console.log(error);
+      }
+
+      setLoading(false);
+    };
+
+    fetchData();
+
+    return () => {
+      abortController.abort();
+    };
+  }, [query]);
+
+  const rows = data?.map((p: any, i: number) => (
+    <Table.Tr key={p.policyNumber}>
+      <Table.Td>{i}</Table.Td>
+      <Table.Td>{p.policyNumber}</Table.Td>
+      <Table.Td>{p.policyStartDate}</Table.Td>
+      <Table.Td>{p.policyEndDate}</Table.Td>
+      <Table.Td>{p.productCode}</Table.Td>
+      <Table.Td>{p.policyHolder}</Table.Td>
+      <Table.Td>{p.premiumAmount}</Table.Td>
+    </Table.Tr>
+  ));
+
   return (
     <div className="space-y-2">
-      <section>
-        <h2 className="text-xl font-bold">Terms of Service</h2>
-        <p>
-          THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
-          EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
-          MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
-          IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
-          CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
-          TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
-          SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-        </p>
-      </section>
-      <section>
-        <h2 className="text-xl font-bold">Privacy Policy</h2>
-        <p>
-          This site uses JSON Web Tokens and an in-memory database which resets
-          every ~2 hours.
-        </p>
-        <p>
-          Data provided to this site is exclusively used to support signing in
-          and is not passed to any third party services, other than via SMTP or
-          OAuth for the purposes of authentication.
-        </p>
-      </section>
+      <Input
+        placeholder="Please enter policy hodler or policy number"
+        leftSection={<Search size={16} />}
+        value={query}
+        onChange={(event) => setQuery(event.currentTarget.value)}
+        rightSectionPointerEvents="all"
+        rightSection={
+          <CloseButton
+            aria-label="Clear search"
+            onClick={() => {
+              setQuery("");
+            }}
+            style={{ display: query ? undefined : "none" }}
+          />
+        }
+      />
+      {loading && (
+        <div className="flex justify-center">
+          <MoreHorizontal />
+        </div>
+      )}
+      <Divider my="md" />
+
+      {data && data.length > 0 && (
+        <Table>
+          <Table.Thead>
+            <Table.Tr>
+              <Table.Th>Index</Table.Th>
+              <Table.Th>Policy Number</Table.Th>
+              <Table.Th>PolicyStart Date</Table.Th>
+              <Table.Th>PolicyEnd Date</Table.Th>
+              <Table.Th>Product Code</Table.Th>
+              <Table.Th>Policy Holder</Table.Th>
+              <Table.Th>Premium Amount</Table.Th>
+            </Table.Tr>
+          </Table.Thead>
+          <Table.Tbody>{rows}</Table.Tbody>
+        </Table>
+      )}
+
+      {data && data.length === 0 && !loading && (
+        <h2 className="text-xs text-center">NOTHING RESULT</h2>
+      )}
     </div>
-  )
+  );
 }

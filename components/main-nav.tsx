@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import Image from "next/image"
+import Image from "next/image";
 
-import { cn } from "@/lib/utils"
-import CustomLink from "./custom-link"
+import { cn } from "@/lib/utils";
+import CustomLink from "./custom-link";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,11 +12,13 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "./ui/navigation-menu"
-import React from "react"
-import { Button } from "./ui/button"
+} from "./ui/navigation-menu";
+import React from "react";
+import { Button } from "./ui/button";
+import { useSession } from "next-auth/react";
 
 export function MainNav() {
+  const { data } = useSession();
   return (
     <div className="flex items-center space-x-2 lg:space-x-6">
       <CustomLink href="/">
@@ -50,10 +52,50 @@ export function MainNav() {
               Client Side
             </NavigationMenuLink>
           </NavigationMenuItem>
+
+          {data && (
+            <>
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  href="/dashboard"
+                  className={navigationMenuTriggerStyle()}
+                >
+                  Dashboard
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  href="/product"
+                  className={navigationMenuTriggerStyle()}
+                >
+                  Product
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  href="/policy"
+                  className={navigationMenuTriggerStyle()}
+                >
+                  Policy
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <NavigationMenuLink
+                  href="/chat"
+                  className={navigationMenuTriggerStyle()}
+                >
+                  Chat agent
+                </NavigationMenuLink>
+              </NavigationMenuItem>
+            </>
+          )}
         </NavigationMenuList>
       </NavigationMenu>
     </div>
-  )
+  );
 }
 
 const ListItem = React.forwardRef<
@@ -78,6 +120,6 @@ const ListItem = React.forwardRef<
         </a>
       </NavigationMenuLink>
     </li>
-  )
-})
-ListItem.displayName = "ListItem"
+  );
+});
+ListItem.displayName = "ListItem";

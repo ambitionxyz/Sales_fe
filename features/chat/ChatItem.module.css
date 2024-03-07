@@ -1,0 +1,13 @@
+.ChatItemWapper {
+  margin-bottom: 20px;
+}
+
+.IsCurrent {
+  background-color: rgb(219, 228, 234);
+  border-radius: 10px;
+}
+
+.message {
+  margin-left: 5px;
+  padding: 5px;
+}
