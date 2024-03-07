@@ -29,7 +29,7 @@ class Connector {
   public newMessage = (data: any) => {
     this.connection
       .invoke("SendMessage", data)
-      .then((x) => console.log("sent"));
+      .then((x) => console.log("sent mess"));
   };
   public static getInstance(): Connector {
     if (!Connector.instance) Connector.instance = new Connector();
